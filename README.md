@@ -1,4 +1,4 @@
-# kitchen_tracker
+# pomodoro_tracker
 
 
 ## Установка Ubuntu
