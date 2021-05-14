@@ -6,21 +6,14 @@ import time
 
 
 vs = VideoStream(src=0).start()
-# allow the camera or video file to warm up
+# warm up the camera
 time.sleep(2.0)
 
-# keep looping
 while True:
 	# grab the current frame
 	frame = vs.read()
 
-	# if we are viewing a video and we did not grab a frame,
-	# then we have reached the end of the video
-	#if frame is None:
-	#	break
-
-	# resize the frame, blur it, and convert it to the HSV
-	# color space
+	# resize the frame, blur it, and convert it to the HSV color space
 	frame = imutils.resize(frame, width=600)
 	#blurred = cv2.GaussianBlur(frame, (11, 11), 0)
 	#hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
@@ -34,7 +27,7 @@ while True:
 	# if the 'q' key is pressed, stop the loop
 	if key == ord("q"):
 		break
-	time.sleep(5.0)
+	time.sleep(30.0)
 
 vs.stop()
 
