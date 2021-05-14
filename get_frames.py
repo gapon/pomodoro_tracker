@@ -1,48 +1,40 @@
 from imutils.video import VideoStream
 import numpy as np
-import cv2
-import imutils
 import time
+import cv2
+from fastai.vision import *
+defaults.device = torch.device('cpu')
 
+path = Path('data')
+
+learn = load_learner(path)
+
+def get_prediction(img):
+    pred_class,pred_idx,outputs = learn.predict(img)
+    return str(pred_class), str(pred_idx.item()), str(outputs)
 
 vs = VideoStream(src=0).start()
 # warm up the camera
 time.sleep(2.0)
 
-# initialize the first frame
-first_frame = None
 
 while True:
 	# grab the current frame
 	frame = vs.read()
 
-	frame = imutils.resize(frame, width=600)
-	gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-	gray = cv2.GaussianBlur(gray, (21, 21), 0)
+	epoch_time = int(time.time())
+	img_path = 'frames/frame_'+str(epoch_time)+'.jpg'
+	cv2.imwrite(img_path,frame)
 
-	#epoch_time = int(time.time())
-
-	#cv2.imwrite('frames/frame_'+str(epoch_time)+'.jpg',frame)
-	
-	if first_frame is None:
-		first_frame = gray
-		continue
+	# convert ndarray to fastai Image
+	frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+	frame = Image(pil2tensor(frame, dtype=np.float32).div_(255)).resize(224)
 
 
-	frame_delta = cv2.absdiff(first_frame, gray)
-	thresh = cv2.threshold(frameDelta, 25, 255, cv2.THRESH_BINARY)[1]
+	print(get_prediction(frame))
 
 
-	cv2.putText(frame, "Delta: {}".format(text), (10, 20),
-		cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-	cv2.imshow("Security Feed", frame)
-
-	key = cv2.waitKey(1) & 0xFF
-	if key == ord("q"):
-		break
-
-
-	time.sleep(5.0)
+	time.sleep(3.0)
 
 vs.stop()
 
