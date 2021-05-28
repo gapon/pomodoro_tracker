@@ -1,9 +1,12 @@
 from imutils.video import VideoStream
+import serial
 import numpy as np
 import time
 import cv2
 from fastai.vision import *
 defaults.device = torch.device('cpu')
+
+arduino = serial.Serial('/dev/cu.usbserial-14310', 9600)
 
 path = Path('data')
 
@@ -39,6 +42,11 @@ while True:
 	
 	current_state, class_idx, tensor = get_prediction(frame)
 
+	if current_state == 'face':
+		arduino.write(b'F')
+	else:
+		arduino.write(b'N')
+
 	if previous_state == None:
 		previous_state = current_state
 
@@ -52,8 +60,11 @@ while True:
 	previous_state = current_state
 	time.sleep(time_interval)
 
-vs.stop()
+
+
 log_file.close()
+arduino.close()
+vs.stop()
 
 # close all windows
 cv2.destroyAllWindows()
