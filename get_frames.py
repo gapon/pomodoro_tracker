@@ -6,7 +6,7 @@ import cv2
 from fastai.vision import *
 defaults.device = torch.device('cpu')
 
-arduino = serial.Serial('/dev/cu.usbserial-14310', 9600)
+arduino = serial.Serial('/dev/cu.usbserial-14410', 9600)
 
 path = Path('data')
 
@@ -27,44 +27,48 @@ previous_state = None
 current_state_time = 0
 time_interval = 3
 
-while True:
-	# grab the current frame
-	frame = vs.read()
 
-	epoch_time = int(time.time())
-	img_path = 'frames/frame_'+str(epoch_time)+'.jpg'
-	cv2.imwrite(img_path,frame)
+try:
+	while True:
+		# grab the current frame
+		frame = vs.read()
 
-	# convert ndarray to fastai Image
-	frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-	frame = Image(pil2tensor(frame, dtype=np.float32).div_(255)).resize(224)
+		epoch_time = int(time.time())
+		img_path = 'frames/frame_'+str(epoch_time)+'.jpg'
+		cv2.imwrite(img_path,frame)
 
-	
-	current_state, class_idx, tensor = get_prediction(frame)
+		# convert ndarray to fastai Image
+		frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+		frame = Image(pil2tensor(frame, dtype=np.float32).div_(255)).resize(224)
 
-	if current_state == 'face':
-		arduino.write(b'F')
-	else:
-		arduino.write(b'N')
+		
+		current_state, class_idx, tensor = get_prediction(frame)
 
-	if previous_state == None:
+		if current_state == 'face':
+			arduino.write(b'F')
+		else:
+			arduino.write(b'N')
+
+		if previous_state == None:
+			previous_state = current_state
+
+		print(current_state, previous_state)
+
+		if current_state != previous_state:
+			log_file.write(previous_state + ' ' + str(current_state_time) + '\n')
+			current_state_time = 0
+
+		current_state_time += time_interval
 		previous_state = current_state
+		time.sleep(time_interval)
+except KeyboardInterrupt:
+	log_file.close()
+	print('File Closed')
+	arduino.close()
+	print('Arduino Serial Closed')
+	vs.stop()
+	print('Video Strem Closed')
 
-	print(current_state, previous_state)
-
-	if current_state != previous_state:
-		log_file.write(previous_state + ' ' + str(current_state_time) + '\n')
-		current_state_time = 0
-
-	current_state_time += time_interval
-	previous_state = current_state
-	time.sleep(time_interval)
-
-
-
-log_file.close()
-arduino.close()
-vs.stop()
-
+print('FINISHED')
 # close all windows
-cv2.destroyAllWindows()
+# cv2.destroyAllWindows()
