@@ -1,15 +1,24 @@
+# USAGE
+# python get_frames.py -a True -d True -l log42
+# python get_frames.py
 from imutils.video import VideoStream
+import argparse
 import serial
 import numpy as np
 import time
 import cv2
-from fastai.vision import *
-defaults.device = torch.device('cpu')
+from fastai.vision.all import *
 
-arduino = serial.Serial('/dev/cu.usbserial-14410', 9600)
+ap = argparse.ArgumentParser()
+ap.add_argument('-a', '--arduino', type=bool, default=False, help='arduino connection')
+ap.add_argument('-d', '--debug', type=bool, default=False, help='debug mode, save frames')
+ap.add_argument('-l','--log', type=str, default='log', help='log file name')
+args = vars(ap.parse_args())
 
-path = Path('data')
+if args['arduino']:
+	arduino = serial.Serial('/dev/cu.usbserial-14410', 9600)
 
+path = Path('data/export.pkl')
 learn = load_learner(path)
 
 def get_prediction(img):
@@ -20,7 +29,7 @@ vs = VideoStream(src=0).start()
 # warm up the camera
 time.sleep(2.0)
 
-log_file = open('log.txt', 'w')
+log_file = open(args['log'], 'w')
 
 current_state = None
 previous_state = None
@@ -33,21 +42,21 @@ try:
 		# grab the current frame
 		frame = vs.read()
 
-		epoch_time = int(time.time())
-		img_path = 'frames/frame_'+str(epoch_time)+'.jpg'
-		cv2.imwrite(img_path,frame)
-
-		# convert ndarray to fastai Image
 		frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-		frame = Image(pil2tensor(frame, dtype=np.float32).div_(255)).resize(224)
 
-		
 		current_state, class_idx, tensor = get_prediction(frame)
 
-		if current_state == 'face':
-			arduino.write(b'F')
-		else:
-			arduino.write(b'N')
+		if args['debug']:
+			frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+			epoch_time = int(time.time())
+			img_path = 'frames/' + str(epoch_time) + current_state +'.jpg'
+			cv2.imwrite(img_path,frame)
+
+		if args['arduino']:
+			if current_state == 'face':
+				arduino.write(b'F')
+			else:
+				arduino.write(b'N')
 
 		if previous_state == None:
 			previous_state = current_state
@@ -62,13 +71,13 @@ try:
 		previous_state = current_state
 		time.sleep(time_interval)
 except KeyboardInterrupt:
+	if args['arduino']:
+		arduino.close()
+		print('Arduino Serial Closed')
+
 	log_file.close()
 	print('File Closed')
-	arduino.close()
-	print('Arduino Serial Closed')
 	vs.stop()
 	print('Video Strem Closed')
 
 print('FINISHED')
-# close all windows
-# cv2.destroyAllWindows()
