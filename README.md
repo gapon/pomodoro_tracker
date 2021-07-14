@@ -1,5 +1,69 @@
 # pomodoro_tracker
 
+## Установить Ubuntu на rpi
+- Установить Vim
+```bash
+sudo apt install vim
+```
+
+## Enable ssh
+
+- Install the openssh-server:
+```bash
+sudo apt update
+sudo apt install openssh-server
+```
+- Проверить статус ssh:
+```bash
+sudo systemctl status ssh
+```
+- Если включен фаервол, то нужно разрешить ssh:
+```bash
+sudo ufw status # проверить статус
+sudo ufw allow ssh
+```
+
+## Установка и настройка git
+- Установить git
+```bash
+sudo apt install git
+```
+- Настройка git
+```bash
+git config --global user.name "Your Name"
+git config --global user.email "youremail@domain.com"
+```
+- Посмотреть текущие настройки
+```bash
+git config --list
+```
+
+## Настройка среды
+- На Ubuntu 20 уже установлен python 3.9
+- Установить pip
+```bash
+sudo apt install python3-pip
+```
+- Установить virtualenvwrapper
+```bash
+pip install virtualenvwrapper
+```
+- Добавить в `~/.profile`
+```bash
+export WORKON_HOME=$HOME/.virtualenvs
+export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3
+source $HOME/.local/bin/virtualenvwrapper.sh
+```
+- Засорсить `~/.profile`
+```bash
+source ~/.profile
+```
+- Создать virtualenv
+```bash
+mkvirtualenv -p python3.9 venv_name
+```
+
+
 
 ## Установка Ubuntu
 
@@ -34,9 +98,6 @@
     - ssh -L 8000:localhost:8888 gapon@192.168.1.49
 ```
 
-## Enable SSH
-
-- [https://linuxhint.com/enable-ssh-server-debian/](https://linuxhint.com/enable-ssh-server-debian/)
 
 ## Добавить место на SD карте
 
