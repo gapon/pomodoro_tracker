@@ -1,8 +1,6 @@
-from fastai.vision import *
-defaults.device = torch.device('cpu')
+from fastai.vision.all import *
 
-path = Path('data')
-
+path = Path('data/export.pkl')
 learn = load_learner(path)
 
 def get_prediction(img):
@@ -10,5 +8,5 @@ def get_prediction(img):
     return str(pred_class), str(pred_idx.item()), str(outputs)
 
 
-img = open_image('frames/second_frame.jpg').resize(224)
-print(get_prediction(img))
+img_pth = 'frames/0-first_frame.jpg'
+print(get_prediction(img_pth))

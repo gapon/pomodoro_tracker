@@ -5,6 +5,10 @@
 ```bash
 sudo apt install vim
 ```
+- Unzip
+```bash
+sudo apt-get install unzip
+```
 
 ## Enable ssh
 
@@ -63,24 +67,36 @@ source ~/.profile
 mkvirtualenv -p python3.9 venv_name
 ```
 
+## Установка jupyter
+```bash
+pip install jupyter
+```
+
+Добавить kernel в jupyter
+
+```bash
+# Inside venv
+pip install ipykernel
+python -m ipykernel install --user --name=myenv
+```
+
+Для пробрасывания
+```bash
+ssh -L 8000:localhost:8888 gapon@192.168.1.43
+```
 
 
-## Установка Ubuntu
 
-- Скачать образ: [http://wiki.banana-pi.org/Banana_Pi_BPI-M1#Image_Release](http://wiki.banana-pi.org/Banana_Pi_BPI-M1#Image_Release)
-    - Лучше брать Armbian он меньше весит и там Ubuntu 18.04 и место на SD карте сразу распределено
-- Манипуляции над SD картой:
-  ```bash
-    diskutil list
-    diskutil unmountDisk /dev/disk2
-    sudo newfs_msdos -F 32 /dev/disk2
-    sudo dd bs=1m if=/Users/gapon/Downloads/2018-07-26-ubuntu-16.04-server-preview-bpi-m1-m1p-r1-sd-emmc.img of=/dev/rdisk2
-  ```
-- Можно подключаться: ssh root@192.168.1.49 / pass: bananapi
-- Для armbian: root@192.168.1.49 / pass: 1234
-    - Сначала нужно подключить к монтитору и конфигурацию сделать. ssh сервер запуститься только после конфигурации.
-    - Сразу попросит поменять пароль и создать юзера
-    - После конфигурации можно ssh
+## Доступ к вебкамере
+```bash
+sudo chmod 777 /dev/video0
+```
+
+
+
+
+
+
 
 ## Установка OpenCV 3.2 на Ubuntu 18.04
 
