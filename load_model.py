@@ -1,7 +1,7 @@
 from fastai.vision.all import *
 
 path = Path('data/export.pkl')
-learn = load_learner(path)
+learn = load_learner(path, cpu=True)
 
 def get_prediction(img):
     pred_class,pred_idx,outputs = learn.predict(img)

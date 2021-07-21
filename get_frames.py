@@ -8,6 +8,8 @@ import numpy as np
 import time
 import cv2
 from fastai.vision.all import *
+import os
+ARDUINO_PORT = os.getenv('ARDUINO_PORT')
 
 ap = argparse.ArgumentParser()
 ap.add_argument('-a', '--arduino', type=bool, default=False, help='arduino connection')
@@ -16,7 +18,7 @@ ap.add_argument('-l','--log', type=str, default='log', help='log file name')
 args = vars(ap.parse_args())
 
 if args['arduino']:
-	arduino = serial.Serial('/dev/cu.usbserial-14410', 9600)
+    arduino = serial.Serial(ARDUINO_PORT, 9600)
 
 path = Path('data/export.pkl')
 learn = load_learner(path)
@@ -29,12 +31,12 @@ vs = VideoStream(src=0).start()
 # warm up the camera
 time.sleep(2.0)
 
-log_file = open(args['log'], 'w')
+log_file = open('logs/'+args['log'], 'w')
 
 current_state = None
 previous_state = None
 current_state_time = 0
-time_interval = 3
+time_interval = 5
 
 
 try:
